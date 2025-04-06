@@ -79,12 +79,12 @@ This is the native iOS application for tandm, allowing freelancers to manage col
     - [x] Task Updates (Status, Assignment - *Implemented via UI*)
     - [x] Task Deletion (*via Swipe*)
 
-- [ ] **Phase 6: Invoice Management (MVP)**
-    - [ ] Invoice Model (`Invoice.swift`)
-    - [ ] Invoice Service (`InvoiceService.swift`)
-    - [ ] Invoice View Model (`InvoiceViewModel.swift`)
-    - [ ] Basic Invoice List/Detail Views
-    - [ ] Create Invoice View
+- [x] **Phase 6: Invoice Management (MVP)**
+    - [x] Invoice Model (`Invoice.swift`)
+    - [x] Invoice Service (`InvoiceService.swift`)
+    - [x] Invoice View Model (`InvoiceViewModel.swift`)
+    - [x] Basic Invoice List/Detail Views (List in `CollectiveDetailView`)
+    - [x] Create Invoice View (`CreateInvoiceView.swift`)
 
 - [ ] **Phase 7: Final Polish & Repo**
     - [ ] Code Cleanup & Refinements

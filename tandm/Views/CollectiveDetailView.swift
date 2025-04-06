@@ -3,10 +3,22 @@ import SwiftUI
 struct CollectiveDetailView: View {
     let collective: Collective
     @EnvironmentObject var collectiveViewModel: CollectiveViewModel // For invites
-    @StateObject private var projectViewModel = ProjectViewModel()  // For projects
+    @StateObject private var projectViewModel: ProjectViewModel
+    @StateObject private var invoiceViewModel: InvoiceViewModel // <-- Add InvoiceViewModel
     
     @State private var showingInviteSheet = false
     @State private var showingCreateProjectSheet = false
+    @State private var showingCreateInvoiceSheet = false // <-- Add state for invoice sheet
+
+    // Updated Initializer
+    init(collective: Collective) {
+        self.collective = collective
+        guard let collectiveId = collective.id else {
+            fatalError("CollectiveDetailView initialized without a collective ID.")
+        }
+        _projectViewModel = StateObject(wrappedValue: ProjectViewModel(collectiveId: collectiveId))
+        _invoiceViewModel = StateObject(wrappedValue: InvoiceViewModel(collectiveId: collectiveId)) // <-- Initialize InvoiceViewModel
+    }
 
     var body: some View {
         List { // Use List for sections
@@ -59,6 +71,45 @@ struct CollectiveDetailView: View {
                     }
                 }
             }
+            
+            // Section: Invoices (NEW)
+            Section("Invoices") {
+                if invoiceViewModel.isLoading {
+                    ProgressView()
+                } else if let errorMessage = invoiceViewModel.errorMessage {
+                    Text("Error: \(errorMessage)")
+                        .foregroundColor(.red)
+                } else if invoiceViewModel.invoices.isEmpty {
+                    Text("No invoices yet for this collective.")
+                        .foregroundColor(.secondary)
+                } else {
+                    ForEach(invoiceViewModel.invoices) { invoice in
+                        // Basic Invoice Row Display (Placeholder - refine later)
+                        VStack(alignment: .leading) {
+                            Text("Invoice for Project: \(invoice.projectId)") // Link to project later?
+                                .font(.headline)
+                            HStack {
+                                Text("Total: $\\(invoice.total, specifier: "%.2f")")
+                                Spacer()
+                                Text("Status: \(invoice.status.rawValue)")
+                            }
+                            .font(.subheadline)
+                            Text("Due: \(invoice.dueDate.dateValue(), style: .date)")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                        // Add NavigationLink or sheet presentation later for detail/edit
+                    }
+                }
+                
+                // Button to eventually open Create Invoice view
+                 Button {
+                     // Set state to show Create Invoice sheet/view
+                     showingCreateInvoiceSheet = true 
+                 } label: {
+                     Label("Create New Invoice", systemImage: "plus.circle")
+                 }
+            }
         }
         .navigationTitle(collective.name)
         .navigationBarTitleDisplayMode(.inline)
@@ -86,16 +137,16 @@ struct CollectiveDetailView: View {
                  .environmentObject(collectiveViewModel)
         }
         .sheet(isPresented: $showingCreateProjectSheet) {
-             // Present the actual CreateProjectView
-             CreateProjectView(
-                collectiveId: collective.id ?? "", // Pass the collective ID
-                projectViewModel: projectViewModel // Pass the view model instance
-             )
+             CreateProjectView(projectViewModel: projectViewModel)
+        }
+        .sheet(isPresented: $showingCreateInvoiceSheet) {
+            CreateInvoiceView(invoiceViewModel: invoiceViewModel)
         }
         .onAppear {
             Task { // Revert back to Task for async operation
                 await projectViewModel.fetchProjects(for: collective.id ?? "")
             }
+            print("CollectiveDetailView appeared for \(collective.name)")
         }
     }
 }
