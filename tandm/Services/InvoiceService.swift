@@ -50,8 +50,8 @@ class InvoiceService {
         }
         
         // Calculate total - ensure amounts are non-negative
-        let total = lineItems.reduce(0.0) { sum, item in
-            return sum + max(0, item.amount) // Ensure amounts aren't negative
+        let total = lineItems.reduce(Decimal(0.0)) { sum, item in // Initialize with Decimal(0.0)
+            return sum + max(Decimal(0), item.amount) // Ensure amounts aren't negative
         }
         
         let invoice = Invoice(
