@@ -35,7 +35,7 @@ class CollectiveViewModel: ObservableObject {
     func fetchCollectives(forUserID uid: String) {
         isLoading = true
         errorMessage = nil
-        Task {
+        Swift.Task {
             do {
                 let fetchedCollectives = try await collectiveService.fetchCollectives(forUserID: uid)
                 self.collectives = fetchedCollectives
@@ -56,7 +56,7 @@ class CollectiveViewModel: ObservableObject {
         
         isLoading = true
         errorMessage = nil
-        Task {
+        Swift.Task {
             do {
                 let newCollectiveID = try await collectiveService.createCollective(
                     name: name, 

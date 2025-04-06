@@ -23,7 +23,7 @@ class TaskViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        Task { // Create a new Task for the async operation
+        Swift.Task { // Create a new Swift.Task for the async operation
             do {
                 self.tasks = try await taskService.fetchTasks(forProjectID: projectID)
                 print("Successfully fetched \\(self.tasks.count) tasks for project \\(projectID).")
@@ -47,23 +47,25 @@ class TaskViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        do {
-            _ = try await taskService.createTask(
-                projectID: projectID,
-                title: title,
-                assignedToUID: assignedToUID,
-                status: status,
-                dueDate: dueDate
-            )
-            print("Task '\\(title)' created successfully for project \\(projectID). Refreshing tasks...")
-            // Refresh the task list after successful creation
-            fetchTasks() // Re-fetch to get the latest list including the new task
-        } catch {
-            print("Error creating task '\\(title)': \\(error)")
-            self.errorMessage = "Failed to create task: \\(error.localizedDescription)"
-            isLoading = false // Ensure loading state is reset on error
+        Swift.Task { // Use Swift.Task for async creation
+            do {
+                _ = try await taskService.createTask(
+                    projectID: projectID,
+                    title: title,
+                    assignedToUID: assignedToUID,
+                    status: status,
+                    dueDate: dueDate
+                )
+                print("Task '\\(title)' created successfully for project \\(projectID). Refreshing tasks...")
+                // Refresh the task list after successful creation
+                fetchTasks() // Re-fetch to get the latest list including the new task
+            } catch {
+                print("Error creating task '\\(title)': \\(error)")
+                self.errorMessage = "Failed to create task: \\(error.localizedDescription)"
+                isLoading = false // Ensure loading state is reset on error
+            }
+            // isLoading will be set to false by the fetchTasks() call upon completion
         }
-        // isLoading will be set to false by the fetchTasks() call upon completion
     }
     
     // MARK: - Other Actions (Update, Delete)

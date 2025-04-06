@@ -52,28 +52,23 @@ struct CreateTaskView: View {
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Create") {
-                        // Validation already happens in ViewModel, but check title here too
-                        guard !title.isEmpty else {
-                            taskViewModel.errorMessage = "Task title cannot be empty."
-                            return
-                        }
-                        
+                    Button(action: {
+                        guard !title.isEmpty else { return }
                         Task {
-                           await taskViewModel.createTask(
+                             await taskViewModel.createTask(
                                 title: title,
                                 assignedToUID: assignedToUID,
-                                // status defaults to .todo in VM
                                 dueDate: showingDueDate ? dueDate : nil
                             )
-                            // Dismiss if creation was successful (no error message set by VM)
-                            // The VM handles the loading state and error message
+                            // Dismiss if creation was successful
                             if taskViewModel.errorMessage == nil {
                                 dismiss()
                             }
                         }
+                    }) {
+                        Text("Create Task")
                     }
-                    .disabled(title.isEmpty || taskViewModel.isLoading) // Disable if title empty or loading
+                    .disabled(title.isEmpty || taskViewModel.isLoading)
                 }
             }
             // Loading indicator could be added here similar to CreateProjectView

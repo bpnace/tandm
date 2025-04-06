@@ -94,13 +94,8 @@ struct CollectiveDetailView: View {
         }
         .onAppear {
              // Fetch projects when the view appears
-            guard let collectiveId = collective.id else {
-                print("Error: Collective ID missing, cannot fetch projects.")
-                // Optionally set an error message on projectViewModel
-                return
-            }
-            Task { // Use Task for async operation
-                await projectViewModel.fetchProjects(for: collectiveId)
+            Swift.Task { // Use Swift.Task for async operation
+                await projectViewModel.fetchProjects(for: collective.id ?? "")
             }
         }
     }

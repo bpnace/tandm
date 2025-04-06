@@ -39,47 +39,54 @@ struct ProjectDetailView: View {
                     Text(project.status.rawValue.capitalized)
                         .fontWeight(.semibold)
                 }
-                if let startDate = project.startDate {
-                    Text("Start Date: \\(startDate.dateValue(), style: .date)")
+                // Display Project Dates
+                HStack {
+                    Text("Start Date:")
+                    // Since startDate is NOT optional based on error, display directly
+                    Text(project.startDate.dateValue(), style: .date)
                 }
+                .font(.caption)
+
+                // Only show End Date if it exists (it IS optional in the model)
                 if let endDate = project.endDate {
-                    Text("End Date: \\(endDate.dateValue(), style: .date)")
-                }
-            }
-            
-            // Section: Tasks
-            Section("Tasks") {
-                if taskViewModel.isLoading {
-                    ProgressView("Loading Tasks...")
-                } else if let errorMessage = taskViewModel.errorMessage {
-                    Text("Error: \\(errorMessage)")
-                        .foregroundColor(.red)
-                } else if taskViewModel.tasks.isEmpty {
-                    Text("No tasks added yet.")
-                        .foregroundColor(.secondary)
-                    Button("Add First Task") { // Button to add task when list is empty
-                         showingCreateTaskSheet = true
+                    HStack {
+                        Text("End Date:")
+                        Text(endDate.dateValue(), style: .date) // Use the unwrapped endDate here
                     }
-                } else {
-                    ForEach(taskViewModel.tasks) { task in
-                        // TODO: Create a TaskRowView for better structure
-                        VStack(alignment: .leading) {
-                            Text(task.title).font(.headline)
-                            HStack {
-                                Text(task.status.rawValue.capitalized)
+                    .font(.caption)
+                }
+
+                Divider()
+
+                // Task Section
+                Section("Tasks") {
+                    if taskViewModel.isLoading {
+                        ProgressView()
+                    } else if taskViewModel.errorMessage != nil {
+                        // Display the error message directly
+                        Text("Error: \(taskViewModel.errorMessage!)")
+                            .foregroundColor(.red)
+                    } else if taskViewModel.tasks.isEmpty {
+                        Text("No tasks yet.")
+                    } else {
+                        List {
+                            ForEach(taskViewModel.tasks) { task in
+                                VStack(alignment: .leading) {
+                                    Text(task.title)
+                                    HStack {
+                                        Text("Status: \(task.status.rawValue)")
+                                        Spacer()
+                                        // Display Due Date if it exists
+                                        if let dueDate = task.dueDate { 
+                                            Text("Due: \(dueDate.dateValue(), style: .date)") // Use unwrapped dueDate
+                                        }
+                                    }
                                     .font(.caption)
-                                    .padding(EdgeInsets(top: 2, leading: 5, bottom: 2, trailing: 5))
-                                    .background(Color.gray.opacity(0.2))
-                                    .cornerRadius(5)
-                                if let dueDate = task.dueDate {
-                                    Text("Due: \\(dueDate.dateValue(), style: .date)")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
+                                    .foregroundColor(.gray)
+                                    // Add assignedTo later
                                 }
-                                // Add assignedTo later
                             }
                         }
-                        // Add swipe actions or context menu for status updates/deletion later
                     }
                 }
             }

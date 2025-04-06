@@ -54,27 +54,23 @@ struct CreateProjectView: View {
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Create") {
-                        // Basic validation
-                        guard !title.isEmpty else {
-                            // Optionally show an alert or inline error
-                            print("Project title cannot be empty")
-                            return
-                        }
-                        
+                    Button(action: { // Add action label
+                        guard !title.isEmpty else { return }
                         Task {
                             await projectViewModel.createProject(
                                 title: title,
                                 description: description,
-                                collectiveId: collectiveId,
+                                collectiveId: collectiveId, // Use the passed collectiveId
                                 startDate: startDate,
                                 endDate: showingEndDate ? endDate : nil // Pass nil if toggle is off
                             )
-                            // Dismiss if creation was successful (no error message)
+                            // Dismiss the view upon successful creation (or handle errors)
                             if projectViewModel.errorMessage == nil {
                                 dismiss()
                             }
                         }
+                    }) { // Label closure starts here
+                        Text("Create Project")
                     }
                     .disabled(title.isEmpty || projectViewModel.isLoading) // Disable if title empty or loading
                 }
