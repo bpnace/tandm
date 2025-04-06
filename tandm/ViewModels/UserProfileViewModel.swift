@@ -31,7 +31,7 @@ class UserProfileViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        Task {
+        Swift.Task {
             do {
                 self.user = try await userService.fetchUserProfile(uid: uid)
                 if self.user == nil {
@@ -73,7 +73,7 @@ class UserProfileViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
 
-        Task {
+        Swift.Task {
             do {
                 try await userService.createOrUpdateUserProfile(user: userToSave)
                 // Optionally re-fetch or just update local state if confident

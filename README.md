@@ -39,18 +39,57 @@ This is the native iOS application for tandm, allowing freelancers to manage col
 4.  Open the `.xcodeproj` or `.xcworkspace` file in Xcode.
 5.  Build and run the project on a simulator or device.
 
-## Development Roadmap
+## Development Roadmap (MVP)
 
-(Link to or detail the phases outlined above)
+- [x] **Phase 1: Setup & Authentication**
+    - [x] Project Setup (Xcode, SPM)
+    - [x] Firebase Integration (Core, Auth, Firestore)
+    - [x] Basic Login/Signup UI (`AuthenticationView`, `LoginView`, `SignUpView`)
+    - [x] Authentication Logic (`AuthenticationViewModel`)
+    - [x] User Model (`User.swift`)
+    - [x] Firestore User Service (`UserService.swift` - basic create/fetch)
 
-1.  **Phase 1:** Project Setup & Core Firebase Integration
-2.  **Phase 2:** User Profile Management
-3.  **Phase 3:** Collectives Management
-4.  **Phase 4:** Project Management
-5.  **Phase 5:** Task Management
-6.  **Phase 6:** Invoice Management
-7.  **Phase 7:** Firebase Functions & Storage
-8.  **Phase 8:** UI Refinement, Error Handling & Final Testing
+- [x] **Phase 2: User Profile Management**
+    - [x] User Profile View (`UserProfileView.swift`)
+    - [x] User Profile View Model (`UserProfileViewModel.swift`)
+    - [x] Update `UserService.swift` for profile CRUD.
+
+- [x] **Phase 3: Collective Management**
+    - [x] Collective Model (`Collective.swift`)
+    - [x] Collective Service (`CollectiveService.swift`)
+    - [x] Collective View Model (`CollectiveViewModel.swift`)
+    - [x] Collective List View (`CollectivesListView.swift` - *Implicitly part of `MainAppView` for now*)
+    - [x] Collective Detail View (`CollectiveDetailView.swift`)
+    - [x] Create Collective View (`CreateCollectiveView.swift` - *Integrated via Alert for now*)
+    - [x] Invite Member Functionality (`InviteMemberView.swift`, `UserService.fetchUser(byEmail:)`, `CollectiveViewModel.inviteMember(...)`)
+
+- [x] **Phase 4: Project Management**
+    - [x] Project Model (`Project.swift`)
+    - [x] Project Service (`ProjectService.swift`)
+    - [x] Project View Model (`ProjectViewModel.swift`)
+    - [x] Display Projects in `CollectiveDetailView`.
+    - [x] Create Project View (`CreateProjectView.swift`)
+
+- [x] **Phase 5: Task Management**
+    - [x] Task Model (`Task.swift`)
+    - [x] Task Service (`TaskService.swift` - fetch/create)
+    - [x] Task View Model (`TaskViewModel.swift` - fetch/create)
+    - [x] Project Detail View (`ProjectDetailView.swift` - display tasks)
+    - [x] Create Task View (`CreateTaskView.swift`)
+    - [ ] Task Updates (Status, Assignment - *Next*)
+    - [ ] Task Deletion (*Next*)
+
+- [ ] **Phase 6: Invoice Management (MVP)**
+    - [ ] Invoice Model (`Invoice.swift`)
+    - [ ] Invoice Service (`InvoiceService.swift`)
+    - [ ] Invoice View Model (`InvoiceViewModel.swift`)
+    - [ ] Basic Invoice List/Detail Views
+    - [ ] Create Invoice View
+
+- [ ] **Phase 7: Final Polish & Repo**
+    - [ ] Code Cleanup & Refinements
+    - [x] Create GitHub Repository & Initial Push
+    - [ ] Further Testing
 
 ---
 

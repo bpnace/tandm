@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseFirestore
 
 struct ProjectDetailView: View {
     let project: Project
