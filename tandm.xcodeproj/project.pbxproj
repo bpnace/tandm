@@ -6,6 +6,14 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		BA111F902DA2EB0800357EE3 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = BA111F8F2DA2EB0800357EE3 /* FirebaseAnalytics */; };
+		BA111F922DA2EB0800357EE3 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = BA111F912DA2EB0800357EE3 /* FirebaseAuth */; };
+		BA111F942DA2EB0800357EE3 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = BA111F932DA2EB0800357EE3 /* FirebaseFirestore */; };
+		BA111F962DA2EB0800357EE3 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = BA111F952DA2EB0800357EE3 /* FirebaseFunctions */; };
+		BA6432B82DA3183F00FF9D45 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = BA6432B72DA3183F00FF9D45 /* FirebaseFirestoreSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		BA111F6B2DA2E65C00357EE3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -35,16 +43,6 @@
 			path = tandm;
 			sourceTree = "<group>";
 		};
-		BA111F6D2DA2E65C00357EE3 /* tandmTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = tandmTests;
-			sourceTree = "<group>";
-		};
-		BA111F772DA2E65C00357EE3 /* tandmUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = tandmUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +50,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BA6432B82DA3183F00FF9D45 /* FirebaseFirestoreSwift in Frameworks */,
+				BA111F902DA2EB0800357EE3 /* FirebaseAnalytics in Frameworks */,
+				BA111F922DA2EB0800357EE3 /* FirebaseAuth in Frameworks */,
+				BA111F942DA2EB0800357EE3 /* FirebaseFirestore in Frameworks */,
+				BA111F962DA2EB0800357EE3 /* FirebaseFunctions in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -76,8 +79,7 @@
 			isa = PBXGroup;
 			children = (
 				BA111F5A2DA2E65A00357EE3 /* tandm */,
-				BA111F6D2DA2E65C00357EE3 /* tandmTests */,
-				BA111F772DA2E65C00357EE3 /* tandmUITests */,
+				BA6432B62DA3140F00FF9D45 /* Frameworks */,
 				BA111F592DA2E65A00357EE3 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +92,13 @@
 				BA111F742DA2E65C00357EE3 /* tandmUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		BA6432B62DA3140F00FF9D45 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,6 +121,11 @@
 			);
 			name = tandm;
 			packageProductDependencies = (
+				BA111F8F2DA2EB0800357EE3 /* FirebaseAnalytics */,
+				BA111F912DA2EB0800357EE3 /* FirebaseAuth */,
+				BA111F932DA2EB0800357EE3 /* FirebaseFirestore */,
+				BA111F952DA2EB0800357EE3 /* FirebaseFunctions */,
+				BA6432B72DA3183F00FF9D45 /* FirebaseFirestoreSwift */,
 			);
 			productName = tandm;
 			productReference = BA111F582DA2E65A00357EE3 /* tandm.app */;
@@ -129,9 +143,6 @@
 			);
 			dependencies = (
 				BA111F6C2DA2E65C00357EE3 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				BA111F6D2DA2E65C00357EE3 /* tandmTests */,
 			);
 			name = tandmTests;
 			packageProductDependencies = (
@@ -152,9 +163,6 @@
 			);
 			dependencies = (
 				BA111F762DA2E65C00357EE3 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				BA111F772DA2E65C00357EE3 /* tandmUITests */,
 			);
 			name = tandmUITests;
 			packageProductDependencies = (
@@ -195,6 +203,9 @@
 			);
 			mainGroup = BA111F4F2DA2E65A00357EE3;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				BA111F8E2DA2EB0800357EE3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BA111F592DA2E65A00357EE3 /* Products */;
 			projectDirPath = "";
@@ -558,6 +569,45 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		BA111F8E2DA2EB0800357EE3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		BA111F8F2DA2EB0800357EE3 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BA111F8E2DA2EB0800357EE3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		BA111F912DA2EB0800357EE3 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BA111F8E2DA2EB0800357EE3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		BA111F932DA2EB0800357EE3 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BA111F8E2DA2EB0800357EE3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		BA111F952DA2EB0800357EE3 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BA111F8E2DA2EB0800357EE3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
+		};
+		BA6432B72DA3183F00FF9D45 /* FirebaseFirestoreSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BA111F8E2DA2EB0800357EE3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestoreSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = BA111F502DA2E65A00357EE3 /* Project object */;
 }
