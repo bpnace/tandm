@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI // Needed for @Published and ObservableObject
 import Firebase // For Auth
+import FirebaseFirestore // <-- Add this import
 
 @MainActor // Ensure UI updates are on the main thread
 class UserProfileViewModel: ObservableObject {
@@ -31,7 +32,7 @@ class UserProfileViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        Swift.Task {
+        Task {
             do {
                 self.user = try await userService.fetchUserProfile(uid: uid)
                 if self.user == nil {
@@ -73,7 +74,7 @@ class UserProfileViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
 
-        Swift.Task {
+        Task {
             do {
                 try await userService.createOrUpdateUserProfile(user: userToSave)
                 // Optionally re-fetch or just update local state if confident
