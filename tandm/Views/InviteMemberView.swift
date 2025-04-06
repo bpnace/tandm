@@ -56,7 +56,7 @@ struct InviteMemberView: View {
         isInviting = true
         inviteError = nil
         
-        Swift.Task {
+        Task {
             do {
                 try await collectiveViewModel.inviteMember(byEmail: emailToInvite, toCollectiveID: collectiveId)
                 print("Invite process initiated for \(emailToInvite) to collective \(collectiveId)")

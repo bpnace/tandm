@@ -19,16 +19,16 @@ class TaskService {
     }
 
     // MARK: - Fetch Tasks for Project
-    func fetchTasks(forProjectID projectID: String) async throws -> [Task] {
+    func fetchTasks(forProjectID projectID: String) async throws -> [TaskModel] {
         do {
             let querySnapshot = try await tasksCollectionRef(forProjectID: projectID)
                                         // Optionally order by creation date, due date, status etc.
                                         .order(by: "createdAt", descending: false)
                                         .getDocuments()
 
-            let tasks = try querySnapshot.documents.compactMap { document -> Task? in
+            let tasks = try querySnapshot.documents.compactMap { document -> TaskModel? in
                 do {
-                    return try document.data(as: Task.self)
+                    return try document.data(as: TaskModel.self)
                 } catch {
                     print("Error decoding task document \(document.documentID) in project \(projectID): \(error)")
                     // Depending on requirements, you might throw, log, or return nil
@@ -45,11 +45,11 @@ class TaskService {
     }
 
     // MARK: - Create Task
-    func createTask(projectID: String, title: String, assignedToUID: String? = nil, status: TaskStatus = .todo, dueDate: Date? = nil) async throws -> String {
-        // Create a Task object - createdAt will be set by Firestore
-        let task = Task(
+    func createTask(projectID: String, title: String, assignedTo: String? = nil, status: TaskStatus = .todo, dueDate: Date? = nil) async throws -> TaskModel {
+        // Create a TaskModel object - createdAt will be set by Firestore
+        let task = TaskModel(
             title: title,
-            assignedTo: assignedToUID,
+            assignedTo: assignedTo,
             status: status,
             dueDate: dueDate != nil ? Timestamp(date: dueDate!) : nil
         )
@@ -58,7 +58,10 @@ class TaskService {
             // Add the task document to the subcollection
             let documentRef = try await tasksCollectionRef(forProjectID: projectID).addDocument(from: task)
             print("Task '\\(title)' created successfully with ID: \\(documentRef.documentID) in project \\(projectID)")
-            return documentRef.documentID
+            // Optionally fetch the newly created task with its ID and return it
+            var createdTask = task
+            createdTask.id = documentRef.documentID // Assign the generated ID
+            return createdTask // Return the task with the ID
         } catch let error as EncodingError {
             print("Error encoding task data for project \\(projectID): \\(error)")
             throw TaskServiceError.decodingError(error) // Reusing decodingError for encoding errors

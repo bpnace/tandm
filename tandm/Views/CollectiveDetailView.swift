@@ -93,8 +93,7 @@ struct CollectiveDetailView: View {
              )
         }
         .onAppear {
-             // Fetch projects when the view appears
-            Swift.Task { // Use Swift.Task for async operation
+            Task { // Revert back to Task for async operation
                 await projectViewModel.fetchProjects(for: collective.id ?? "")
             }
         }

@@ -5,7 +5,7 @@ struct CreateTaskView: View {
     
     // Form State
     @State private var title: String = ""
-    @State private var assignedToUID: String? = nil // Simple text field for now, potentially a picker later
+    @State private var assignedTo: String? = nil // Renamed from assignedToUID
     @State private var dueDate: Date? = nil
     @State private var showingDueDate: Bool = false
     
@@ -18,8 +18,8 @@ struct CreateTaskView: View {
                     TextField("Task Title", text: $title)
                     // Basic assignment - TODO: Replace with user picker later
                     TextField("Assign to (User ID - Optional)", text: Binding(
-                        get: { self.assignedToUID ?? "" },
-                        set: { self.assignedToUID = $0.isEmpty ? nil : $0 }
+                        get: { self.assignedTo ?? "" },
+                        set: { self.assignedTo = $0.isEmpty ? nil : $0 }
                     ))
                 }
                 
@@ -57,7 +57,7 @@ struct CreateTaskView: View {
                         Task {
                              await taskViewModel.createTask(
                                 title: title,
-                                assignedToUID: assignedToUID,
+                                assignedTo: assignedTo,
                                 dueDate: showingDueDate ? dueDate : nil
                             )
                             // Dismiss if creation was successful

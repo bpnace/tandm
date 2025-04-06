@@ -73,17 +73,14 @@ struct ProjectDetailView: View {
                             ForEach(taskViewModel.tasks) { task in
                                 VStack(alignment: .leading) {
                                     Text(task.title)
-                                    HStack {
-                                        Text("Status: \(task.status.rawValue)")
-                                        Spacer()
-                                        // Display Due Date if it exists
-                                        if let dueDate = task.dueDate { 
-                                            Text("Due: \(dueDate.dateValue(), style: .date)") // Use unwrapped dueDate
-                                        }
+                                        .font(.headline)
+                                    Text("Status: \(task.status.rawValue)")
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                    if let dueDate = task.dueDate {
+                                        Text("Due: \(dueDate.dateValue(), style: .date)")
+                                            .font(.caption)
                                     }
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                                    // Add assignedTo later
                                 }
                             }
                         }

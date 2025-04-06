@@ -11,7 +11,7 @@ enum TaskStatus: String, Codable, CaseIterable, Identifiable {
     var id: String { self.rawValue }
 }
 
-struct Task: Identifiable, Codable, Equatable {
+struct TaskModel: Identifiable, Codable, Equatable {
     @DocumentID var id: String?
     var title: String
     var assignedTo: String? // User UID
@@ -20,4 +20,4 @@ struct Task: Identifiable, Codable, Equatable {
     @ServerTimestamp var createdAt: Timestamp? // Auto-set by Firestore
 
     // Add other relevant fields like description, priority, etc. later if needed
-} 
+}
