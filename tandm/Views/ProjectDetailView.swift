@@ -47,8 +47,7 @@ struct ProjectDetailView: View {
                 // Display Project Dates
                 HStack {
                     Text("Start Date:")
-                    // Since startDate is NOT optional based on error, display directly
-                    Text(project.startDate.dateValue(), style: .date)
+                    Text(project.startDate.dateValue(), style: .abbreviated)
                 }
                 .font(.caption)
 
@@ -56,7 +55,7 @@ struct ProjectDetailView: View {
                 if let endDate = project.endDate {
                     HStack {
                         Text("End Date:")
-                        Text(endDate.dateValue(), style: .date) // Use the unwrapped endDate here
+                        Text(endDate.dateValue(), style: .abbreviated)
                     }
                     .font(.caption)
                 }
@@ -67,12 +66,15 @@ struct ProjectDetailView: View {
                 Section("Tasks") {
                     if taskViewModel.isLoading {
                         ProgressView()
-                    } else if taskViewModel.errorMessage != nil {
-                        // Display the error message directly
-                        Text("Error: \(taskViewModel.errorMessage!)")
-                            .foregroundColor(.red)
                     } else if taskViewModel.tasks.isEmpty {
-                        Text("No tasks yet.")
+                        VStack {
+                            Image(systemName: "checklist.unchecked")
+                                .font(.largeTitle)
+                                .foregroundColor(.secondary)
+                                .padding(.bottom, 2)
+                            Text("No tasks yet.")
+                                .foregroundColor(.secondary)
+                        }
                     } else {
                         ForEach(taskViewModel.tasks) { task in
                             VStack(alignment: .leading) {
@@ -92,7 +94,7 @@ struct ProjectDetailView: View {
                                         .foregroundColor(.orange)
                                 }
                                 if let dueDate = task.dueDate {
-                                    Text("Due: \(dueDate.dateValue(), style: .date)")
+                                    Text("Due: \(dueDate.dateValue(), style: .abbreviated)")
                                         .font(.caption)
                                 }
                             }
@@ -179,6 +181,12 @@ struct ProjectDetailView: View {
         } message: { task in
             Text("Enter the User ID to assign the task '\(task.title)' to. Leave empty to unassign.")
         }
+        // Add alert for Task fetch/update errors
+        .alert("Task Error", isPresented: .constant(taskViewModel.errorMessage != nil), actions: {
+            Button("OK") { taskViewModel.errorMessage = nil }
+        }, message: {
+            Text(taskViewModel.errorMessage ?? "An unknown error occurred with tasks.")
+        })
         // .onAppear is handled by TaskViewModel's init
     }
 }

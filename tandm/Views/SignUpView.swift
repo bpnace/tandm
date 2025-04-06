@@ -17,12 +17,6 @@ struct SignUpView: View {
 
             // Optional: Add a "Confirm Password" field if desired
 
-            if let errorMessage = authViewModel.errorMessage {
-                Text(errorMessage)
-                    .foregroundColor(.red)
-                    .font(.caption)
-            }
-
             Button(action: authViewModel.signUp) {
                 if authViewModel.isLoading {
                     ProgressView()
@@ -33,6 +27,14 @@ struct SignUpView: View {
             .buttonStyle(.borderedProminent)
             .disabled(authViewModel.email.isEmpty || authViewModel.password.isEmpty || authViewModel.isLoading)
         }
+        // Add alert for error messages
+        .alert("Sign Up Error", isPresented: .constant(authViewModel.errorMessage != nil), actions: {
+            Button("OK") {
+                authViewModel.errorMessage = nil // Clear the error message
+            }
+        }, message: {
+            Text(authViewModel.errorMessage ?? "An unknown error occurred.")
+        })
     }
 }
 

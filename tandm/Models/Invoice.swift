@@ -17,7 +17,7 @@ enum InvoiceStatus: String, Codable, CaseIterable, Identifiable {
 struct InvoiceLineItem: Codable, Identifiable, Hashable {
     var id = UUID() // Local identifier for list iteration
     var description: String
-    var amount: Double // Using Double for simplicity, consider Decimal for precision
+    var amount: Decimal // Using Decimal for precision
     var freelancerId: String // UID of the freelancer this item applies to
     
     // Conform to Hashable for ForEach loops if needed
@@ -36,7 +36,7 @@ struct Invoice: Identifiable, Codable, Equatable {
     var projectId: String
     var collectiveId: String
     var lineItems: [InvoiceLineItem]
-    var total: Double // Calculated from line items, store for easy access
+    var total: Decimal // Calculated from line items, store for easy access
     var status: InvoiceStatus = .draft
     var dueDate: Timestamp
     @ServerTimestamp var createdAt: Timestamp? // Auto-set by Firestore

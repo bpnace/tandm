@@ -15,12 +15,6 @@ struct LoginView: View {
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal)
 
-            if let errorMessage = authViewModel.errorMessage {
-                Text(errorMessage)
-                    .foregroundColor(.red)
-                    .font(.caption)
-            }
-
             Button(action: authViewModel.signIn) {
                 if authViewModel.isLoading {
                     ProgressView()
@@ -34,6 +28,13 @@ struct LoginView: View {
             // Add Google Sign In Button later
             // Button("Sign In with Google") { ... }
         }
+        .alert("Authentication Error", isPresented: .constant(authViewModel.errorMessage != nil), actions: {
+            Button("OK") {
+                authViewModel.errorMessage = nil // Clear the error message
+            }
+        }, message: {
+            Text(authViewModel.errorMessage ?? "An unknown error occurred.")
+        })
     }
 }
 
