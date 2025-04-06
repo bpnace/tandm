@@ -33,114 +33,27 @@ struct ProjectDetailView: View {
         List {
             // Section: Project Info
             Section("Project Details") {
-                Text(project.title)
-                    .font(.largeTitle)
-                    .padding(.bottom, 2)
-                Text(project.description)
-                    .font(.body)
-                    .foregroundColor(.secondary)
-                HStack {
-                    Text("Status:")
-                    Text(project.status.rawValue.capitalized)
-                        .fontWeight(.semibold)
-                }
-                // Display Project Dates
-                HStack {
-                    Text("Start Date:")
-                    Text(project.startDate.dateValue(), style: .abbreviated)
-                }
-                .font(.caption)
+                ProjectInfoSection(project: project)
+            } // End Section("Project Details")
 
-                // Only show End Date if it exists (it IS optional in the model)
-                if let endDate = project.endDate {
-                    HStack {
-                        Text("End Date:")
-                        Text(endDate.dateValue(), style: .abbreviated)
+            Divider()
+
+            // Task Section
+            Section("Tasks") {
+                if taskViewModel.isLoading {
+                    ProgressView()
+                } else if taskViewModel.tasks.isEmpty {
+                    VStack {
+                        Image(systemName: "checklist.unchecked")
+                            .font(.largeTitle)
+                            .foregroundColor(.secondary)
+                            .padding(.bottom, 2)
+                        Text("No tasks yet.")
+                            .foregroundColor(.secondary)
                     }
-                    .font(.caption)
-                }
-
-                Divider()
-
-                // Task Section
-                Section("Tasks") {
-                    if taskViewModel.isLoading {
-                        ProgressView()
-                    } else if taskViewModel.tasks.isEmpty {
-                        VStack {
-                            Image(systemName: "checklist.unchecked")
-                                .font(.largeTitle)
-                                .foregroundColor(.secondary)
-                                .padding(.bottom, 2)
-                            Text("No tasks yet.")
-                                .foregroundColor(.secondary)
-                        }
-                    } else {
-                        ForEach(taskViewModel.tasks) { task in
-                            VStack(alignment: .leading) {
-                                Text(task.title)
-                                    .font(.headline)
-                                Text("Status: \(task.status.rawValue)")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                // Display Assigned User
-                                if let assignedTo = task.assignedTo, !assignedTo.isEmpty {
-                                    Text("Assigned: \(assignedTo)") // Simple display for now
-                                        .font(.caption)
-                                        .foregroundColor(.blue)
-                                } else {
-                                    Text("Unassigned")
-                                        .font(.caption)
-                                        .foregroundColor(.orange)
-                                }
-                                if let dueDate = task.dueDate {
-                                    Text("Due: \(dueDate.dateValue(), style: .abbreviated)")
-                                        .font(.caption)
-                                }
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                Button(role: .destructive) {
-                                    // Call ViewModel delete function
-                                    Task {
-                                        await taskViewModel.deleteTask(task: task)
-                                    }
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                            }
-                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                Button {
-                                    // Cycle through statuses
-                                    Task {
-                                        guard let currentStatusIndex = TaskStatus.allCases.firstIndex(of: task.status) else { return }
-                                        let nextIndex = (currentStatusIndex + 1) % TaskStatus.allCases.count
-                                        let newStatus = TaskStatus.allCases[nextIndex]
-                                        await taskViewModel.updateTaskStatus(task: task, newStatus: newStatus)
-                                    }
-                                } label: {
-                                    Label("Next Status", systemImage: "arrow.clockwise.circle")
-                                }
-                                .tint(.blue) // Or choose a color based on the next status
-                            }
-                            // Add Context Menu for Assignment
-                            .contextMenu {
-                                Button {
-                                    Task {
-                                        await taskViewModel.updateTaskAssignment(task: task, newAssignedTo: nil)
-                                    }
-                                } label: {
-                                    Label("Unassign Task", systemImage: "person.crop.circle.badge.xmark")
-                                }
-
-                                Button {
-                                    self.taskToAssign = task
-                                    self.assignedUserIdInput = task.assignedTo ?? ""
-                                    self.showingAssignAlert = true
-                                } label: {
-                                    Label("Reassign Task", systemImage: "person.crop.circle.badge.plus")
-                                }
-                            }
-                        }
+                } else {
+                    ForEach(taskViewModel.tasks) { task in
+                        TaskRowView(task: task, taskViewModel: taskViewModel, taskToAssign: $taskToAssign, assignedUserIdInput: $assignedUserIdInput, showingAssignAlert: $showingAssignAlert)
                     }
                 }
             }
@@ -188,6 +101,115 @@ struct ProjectDetailView: View {
             Text(taskViewModel.errorMessage ?? "An unknown error occurred with tasks.")
         })
         // .onAppear is handled by TaskViewModel's init
+    }
+}
+
+// MARK: - Task Row Helper View
+private struct TaskRowView: View {
+    let task: TaskModel
+    @ObservedObject var taskViewModel: TaskViewModel
+    @Binding var taskToAssign: TaskModel?
+    @Binding var assignedUserIdInput: String
+    @Binding var showingAssignAlert: Bool
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(task.title)
+                .font(.headline)
+            Text("Status: \(task.status.rawValue.capitalized)") // Capitalize status
+                .font(.subheadline)
+                .foregroundColor(.gray)
+            // Display Assigned User
+            if let assignedTo = task.assignedTo, !assignedTo.isEmpty {
+                Text("Assigned: \(assignedTo)") // Simple display for now
+                    .font(.caption)
+                    .foregroundColor(.blue)
+            } else {
+                Text("Unassigned")
+                    .font(.caption)
+                    .foregroundColor(.orange)
+            }
+            if let dueDate = task.dueDate {
+                Text("Due: \(dueDate.dateValue().formatted(date: .abbreviated, time: .omitted))") // Explicit formatting
+                    .font(.caption)
+            }
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button(role: .destructive) {
+                // Call ViewModel delete function
+                Task {
+                    await taskViewModel.deleteTask(task: task)
+                }
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
+        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            Button {
+                // Cycle through statuses
+                Task {
+                    guard let currentStatusIndex = TaskStatus.allCases.firstIndex(of: task.status) else { return }
+                    let nextIndex = (currentStatusIndex + 1) % TaskStatus.allCases.count
+                    let newStatus = TaskStatus.allCases[nextIndex]
+                    await taskViewModel.updateTaskStatus(task: task, newStatus: newStatus)
+                }
+            } label: {
+                Label("Next Status", systemImage: "arrow.clockwise.circle")
+            }
+            .tint(.blue) // Or choose a color based on the next status
+        }
+        // Add Context Menu for Assignment
+        .contextMenu {
+            Button {
+                Task {
+                    await taskViewModel.updateTaskAssignment(task: task, newAssignedTo: nil)
+                }
+            } label: {
+                Label("Unassign Task", systemImage: "person.crop.circle.badge.xmark")
+            }
+
+            Button {
+                self.taskToAssign = task
+                self.assignedUserIdInput = task.assignedTo ?? ""
+                self.showingAssignAlert = true
+            } label: {
+                Label("Reassign Task", systemImage: "person.crop.circle.badge.plus")
+            }
+        }
+    }
+}
+
+// MARK: - Project Info Helper View
+private struct ProjectInfoSection: View {
+    let project: Project
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) { 
+            Text(project.title)
+                .font(.largeTitle)
+                .padding(.bottom, 2)
+            Text(project.description)
+                .font(.body)
+                .foregroundColor(.secondary)
+            HStack {
+                Text("Status:")
+                Text(project.status.rawValue.capitalized)
+                    .fontWeight(.semibold)
+            }
+            HStack {
+                Text("Start Date:")
+                Text(project.startDate.dateValue().formatted(date: .abbreviated, time: .omitted))
+            }
+            .font(.caption)
+
+            if let endDate = project.endDate {
+                HStack {
+                    Text("End Date:")
+                    Text(endDate.dateValue().formatted(date: .abbreviated, time: .omitted))
+                }
+                .font(.caption)
+            }
+        }
     }
 }
 
