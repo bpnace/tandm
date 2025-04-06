@@ -68,7 +68,70 @@ class TaskViewModel: ObservableObject {
     }
     
     // MARK: - Other Actions (Update, Delete)
-    // Add functions for updating status, assignment, deletion etc.
-    // func updateTaskStatus(taskID: String, newStatus: TaskStatus) async { ... }
-    // func deleteTask(taskID: String) async { ... }
+    func updateTaskStatus(task: TaskModel, newStatus: TaskStatus) async {
+        guard let taskId = task.id else {
+            print("Error: Task ID is missing for update.")
+            errorMessage = "Cannot update task: Missing ID."
+            return
+        }
+        
+        print("Attempting to update status for task \(taskId) to \(newStatus.rawValue) in project \(projectID)...")
+        errorMessage = nil // Clear previous errors
+        // Optionally set isLoading = true if you want a loading indicator during update
+        
+        do {
+            try await taskService.updateTaskStatus(projectID: projectID, taskId: taskId, newStatus: newStatus)
+            print("Task \(taskId) status updated successfully. Updating local state.")
+            // Find the index of the task and update it locally
+            if let index = tasks.firstIndex(where: { $0.id == taskId }) {
+                tasks[index].status = newStatus
+            }
+        } catch {
+            print("Error updating task \(taskId) status: \(error)")
+            self.errorMessage = "Failed to update task status: \(error.localizedDescription)"
+        }
+        // Optionally set isLoading = false here
+    }
+    
+    func updateTaskAssignment(task: TaskModel, newAssignedTo: String?) async {
+        guard let taskId = task.id else {
+            print("Error: Task ID is missing for assignment update.")
+            errorMessage = "Cannot update task assignment: Missing ID."
+            return
+        }
+
+        print("Attempting to update assignment for task \(taskId) to \(newAssignedTo ?? "Unassigned") in project \(projectID)...")
+        errorMessage = nil
+        
+        do {
+            try await taskService.updateTaskAssignment(projectID: projectID, taskId: taskId, newAssignedTo: newAssignedTo)
+            print("Task \(taskId) assignment updated successfully. Updating local state.")
+            if let index = tasks.firstIndex(where: { $0.id == taskId }) {
+                tasks[index].assignedTo = newAssignedTo
+            }
+        } catch {
+            print("Error updating task \(taskId) assignment: \(error)")
+            self.errorMessage = "Failed to update task assignment: \(error.localizedDescription)"
+        }
+    }
+    
+    func deleteTask(task: TaskModel) async {
+        guard let taskId = task.id else {
+            print("Error: Task ID is missing for deletion.")
+            errorMessage = "Cannot delete task: Missing ID."
+            return
+        }
+        
+        print("Attempting to delete task \(taskId) in project \(projectID)...")
+        errorMessage = nil
+        
+        do {
+            try await taskService.deleteTask(projectID: projectID, taskId: taskId)
+            print("Task \(taskId) deleted successfully. Removing from local state.")
+            tasks.removeAll { $0.id == taskId }
+        } catch {
+            print("Error deleting task \(taskId): \(error)")
+            self.errorMessage = "Failed to delete task: \(error.localizedDescription)"
+        }
+    }
 } 

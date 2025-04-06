@@ -72,10 +72,42 @@ class TaskService {
     }
 
     // MARK: - Update Task
-    // func updateTaskStatus(...) async throws { ... }
-    // func assignTask(...) async throws { ... }
+    func updateTaskStatus(projectID: String, taskId: String, newStatus: TaskStatus) async throws {
+        let taskRef = tasksCollectionRef(forProjectID: projectID).document(taskId)
+        do {
+            try await taskRef.updateData(["status": newStatus.rawValue]) // Assuming TaskStatus has a String rawValue
+            print("Task \\(taskId) in project \\(projectID) status updated to \\(newStatus.rawValue)")
+        } catch {
+            print("Error updating task \\(taskId) status in project \\(projectID): \\(error)")
+            throw TaskServiceError.firestoreError(error)
+        }
+    }
+
+    func updateTaskAssignment(projectID: String, taskId: String, newAssignedTo: String?) async throws {
+        let taskRef = tasksCollectionRef(forProjectID: projectID).document(taskId)
+        do {
+            // If newAssignedTo is nil, we might want to remove the field or set it to null.
+            // Using updateData with nil might remove the field, but let's explicitly handle it.
+            // Firestore often uses NSNull() for null values when interacting via dictionary updates.
+            let data: [String: Any] = ["assignedTo": newAssignedTo as Any? ?? NSNull()]
+            try await taskRef.updateData(data)
+            print("Task \(taskId) in project \(projectID) assignment updated to \(newAssignedTo ?? "Unassigned")")
+        } catch {
+            print("Error updating task \(taskId) assignment in project \(projectID): \(error)")
+            throw TaskServiceError.firestoreError(error)
+        }
+    }
 
     // MARK: - Delete Task
-    // func deleteTask(...) async throws { ... }
+    func deleteTask(projectID: String, taskId: String) async throws {
+        let taskRef = tasksCollectionRef(forProjectID: projectID).document(taskId)
+        do {
+            try await taskRef.delete()
+            print("Task \(taskId) in project \(projectID) deleted successfully.")
+        } catch {
+            print("Error deleting task \(taskId) in project \(projectID): \(error)")
+            throw TaskServiceError.firestoreError(error)
+        }
+    }
 
 } 
