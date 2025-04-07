@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import FirebaseFirestoreSwift // Ensure this is imported if needed for Task model, though likely already is
+import FirebaseFirestore // <-- Add this import
 
 @MainActor // Ensure UI updates happen on the main thread
 class TaskViewModel: ObservableObject {
@@ -70,27 +71,31 @@ class TaskViewModel: ObservableObject {
     // MARK: - Other Actions (Update, Delete)
     func updateTaskStatus(task: TaskModel, newStatus: TaskStatus) async {
         guard let taskId = task.id else {
-            print("Error: Task ID is missing for update.")
+            print("[TaskViewModel] Error: Task ID is missing for update.")
             errorMessage = "Cannot update task: Missing ID."
             return
         }
         
-        print("Attempting to update status for task \(taskId) to \(newStatus.rawValue) in project \(projectID)...")
+        print("[TaskViewModel] Starting status update for task \(taskId) to \(newStatus.rawValue). Calling service...")
         errorMessage = nil // Clear previous errors
         // Optionally set isLoading = true if you want a loading indicator during update
         
         do {
             try await taskService.updateTaskStatus(projectID: projectID, taskId: taskId, newStatus: newStatus)
-            print("Task \(taskId) status updated successfully. Updating local state.")
+            print("[TaskViewModel] Service call updateTaskStatus completed for task \(taskId). Proceeding to update local state.")
             // Find the index of the task and update it locally
             if let index = tasks.firstIndex(where: { $0.id == taskId }) {
                 tasks[index].status = newStatus
+                print("[TaskViewModel] Local state updated for task \(taskId) at index \(index).")
+            } else {
+                 print("[TaskViewModel] Task \(taskId) not found in local 'tasks' array after successful service update.")
             }
         } catch {
-            print("Error updating task \(taskId) status: \(error)")
+            print("[TaskViewModel] Service call updateTaskStatus FAILED for task \(taskId): \(error)")
             self.errorMessage = "Failed to update task status: \(error.localizedDescription)"
         }
         // Optionally set isLoading = false here
+        print("[TaskViewModel] Status update process finished for task \(taskId).")
     }
     
     func updateTaskAssignment(task: TaskModel, newAssignedTo: String?) async {
@@ -113,6 +118,39 @@ class TaskViewModel: ObservableObject {
             print("Error updating task \(taskId) assignment: \(error)")
             self.errorMessage = "Failed to update task assignment: \(error.localizedDescription)"
         }
+    }
+    
+    // MARK: - Update Task Details (Assignment & Due Date)
+    func updateTaskDetails(task: TaskModel, newAssignedTo: String?, newDueDate: Date?) async {
+        guard let taskId = task.id else {
+            print("[TaskViewModel] Error: Task ID is missing for details update.")
+            errorMessage = "Cannot update task details: Missing ID."
+            return
+        }
+        
+        print("[TaskViewModel] Starting details update for task \(taskId). Calling service...")
+        errorMessage = nil
+        
+        do {
+            // Convert Date? to Timestamp?
+            let newTimestamp = newDueDate != nil ? Timestamp(date: newDueDate!) : nil
+            
+            try await taskService.updateTaskDetails(projectID: projectID, taskId: taskId, newAssignedTo: newAssignedTo, newDueDate: newTimestamp)
+            print("[TaskViewModel] Service call updateTaskDetails completed for task \(taskId). Proceeding to update local state.")
+            
+            // Update local state
+            if let index = tasks.firstIndex(where: { $0.id == taskId }) {
+                tasks[index].assignedTo = newAssignedTo
+                tasks[index].dueDate = newTimestamp
+                print("[TaskViewModel] Local state updated for task \(taskId) details.")
+            } else {
+                 print("[TaskViewModel] Task \(taskId) not found locally after successful details update.")
+            }
+        } catch {
+            print("[TaskViewModel] Service call updateTaskDetails FAILED for task \(taskId): \(error)")
+            self.errorMessage = "Failed to update task details: \(error.localizedDescription)"
+        }
+        print("[TaskViewModel] Details update process finished for task \(taskId).")
     }
     
     func deleteTask(task: TaskModel) async {

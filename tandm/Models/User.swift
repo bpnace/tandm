@@ -1,7 +1,7 @@
 import Foundation
 import FirebaseFirestore // Import Firestore
 
-struct User: Identifiable, Codable {
+struct User: Identifiable, Codable, Equatable {
     // Use documentID property wrapper for Firestore document ID mapping
     @DocumentID var id: String? // Maps the Firestore document ID to this property. Optional because it's not set until fetched/saved.
     

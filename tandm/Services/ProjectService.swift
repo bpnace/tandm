@@ -40,7 +40,7 @@ class ProjectService {
             let querySnapshot = try await projectsCollectionRef
                                         .whereField("collectiveId", isEqualTo: collectiveID)
                                         // Optionally order by creation date or status
-                                        .order(by: "createdAt", descending: true) 
+                                        .order(by: "createdAt", descending: true) // <-- Restore ordering
                                         .getDocuments()
             
             let projects = try querySnapshot.documents.compactMap { document -> Project? in

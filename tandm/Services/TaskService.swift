@@ -73,27 +73,44 @@ class TaskService {
 
     // MARK: - Update Task
     func updateTaskStatus(projectID: String, taskId: String, newStatus: TaskStatus) async throws {
+        print("  [TaskService] Attempting update for task \(taskId) to \(newStatus.rawValue)")
         let taskRef = tasksCollectionRef(forProjectID: projectID).document(taskId)
         do {
             try await taskRef.updateData(["status": newStatus.rawValue]) // Assuming TaskStatus has a String rawValue
-            print("Task \\(taskId) in project \\(projectID) status updated to \\(newStatus.rawValue)")
+            print("  [TaskService] Firestore updateData successful for task \(taskId).")
         } catch {
-            print("Error updating task \\(taskId) status in project \\(projectID): \\(error)")
+            print("  [TaskService] Firestore updateData FAILED for task \(taskId): \(error)")
             throw TaskServiceError.firestoreError(error)
         }
     }
 
     func updateTaskAssignment(projectID: String, taskId: String, newAssignedTo: String?) async throws {
+        print("  [TaskService] Attempting assignment update for task \(taskId)")
         let taskRef = tasksCollectionRef(forProjectID: projectID).document(taskId)
         do {
-            // If newAssignedTo is nil, we might want to remove the field or set it to null.
-            // Using updateData with nil might remove the field, but let's explicitly handle it.
-            // Firestore often uses NSNull() for null values when interacting via dictionary updates.
             let data: [String: Any] = ["assignedTo": newAssignedTo as Any? ?? NSNull()]
             try await taskRef.updateData(data)
-            print("Task \(taskId) in project \(projectID) assignment updated to \(newAssignedTo ?? "Unassigned")")
+            print("  [TaskService] Firestore assignment update successful for task \(taskId).")
         } catch {
-            print("Error updating task \(taskId) assignment in project \(projectID): \(error)")
+            print("  [TaskService] Firestore assignment update FAILED for task \(taskId): \(error)")
+            throw TaskServiceError.firestoreError(error)
+        }
+    }
+
+    // Update both assignment and due date
+    func updateTaskDetails(projectID: String, taskId: String, newAssignedTo: String?, newDueDate: Timestamp?) async throws {
+        print("  [TaskService] Attempting details update for task \(taskId)")
+        let taskRef = tasksCollectionRef(forProjectID: projectID).document(taskId)
+        do {
+            // Prepare data dictionary, handling nil values
+            var dataToUpdate: [String: Any] = [:]
+            dataToUpdate["assignedTo"] = newAssignedTo as Any? ?? NSNull()
+            dataToUpdate["dueDate"] = newDueDate as Any? ?? NSNull()
+            
+            try await taskRef.updateData(dataToUpdate)
+            print("  [TaskService] Firestore details update successful for task \(taskId).")
+        } catch {
+            print("  [TaskService] Firestore details update FAILED for task \(taskId): \(error)")
             throw TaskServiceError.firestoreError(error)
         }
     }

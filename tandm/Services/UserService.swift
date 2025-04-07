@@ -138,6 +138,44 @@ class UserService {
         }
     }
 
+    // MARK: - Fetch Multiple Users by UID
+
+    func fetchMultipleUsers(uids: [String]) async throws -> [User] {
+        guard !uids.isEmpty else { return [] } // Return empty if no UIDs provided
+        
+        // Firestore 'in' query supports up to 30 elements by default
+        // For more, you'd need multiple queries.
+        guard uids.count <= 30 else {
+            print("Warning: Fetching more than 30 users at once is not supported by a single 'in' query.")
+            // Handle this case: either throw an error, fetch in batches, or fetch only the first 30.
+            // For now, let's fetch the first 30.
+             // Alternatively, throw an error:
+             // throw UserServiceError.tooManyUIDsToFetch
+            let chunkedUIDs = Array(uids.prefix(30))
+             return try await fetchUsersChunk(uids: chunkedUIDs)
+        }
+        
+        return try await fetchUsersChunk(uids: uids)
+    }
+    
+    // Helper for fetching a chunk of users
+    private func fetchUsersChunk(uids: [String]) async throws -> [User] {
+         do {
+            let querySnapshot = try await usersCollectionRef
+                                        .whereField(FieldPath.documentID(), in: uids)
+                                        .getDocuments()
+
+            let users = try querySnapshot.documents.compactMap { document -> User? in
+                try? document.data(as: User.self)
+            }
+            print("Fetched \(users.count) users for UIDs: \(uids)")
+            return users
+        } catch {
+            print("Error fetching users chunk with UIDs \(uids): \(error)")
+            throw UserServiceError.firestoreError(error)
+        }
+    }
+
 }
 
 // Define potential custom errors for the service

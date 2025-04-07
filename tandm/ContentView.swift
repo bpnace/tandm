@@ -30,8 +30,10 @@ struct ContentView: View {
 struct MainAppView: View {
     @ObservedObject var authViewModel: AuthenticationViewModel
     @StateObject private var collectiveViewModel: CollectiveViewModel
+    @StateObject private var userProfileViewModel = UserProfileViewModel()
 
     @State private var showingCreateCollectiveSheet = false
+    @State private var showingProfileSheet = false
 
     init(authViewModel: AuthenticationViewModel) {
         self.authViewModel = authViewModel
@@ -71,13 +73,6 @@ struct MainAppView: View {
                 .listStyle(GroupedListStyle())
 
                 Spacer()
-
-                Button("Log Out") {
-                    authViewModel.signOut()
-                }
-                .padding(.top)
-                .buttonStyle(.bordered)
-
             }
             .navigationTitle("Dashboard")
             .toolbar {
@@ -85,13 +80,26 @@ struct MainAppView: View {
                     Button {
                         showingCreateCollectiveSheet = true
                     } label: {
-                        Image(systemName: "plus.circle.fill")
+                        Label("New Collective", systemImage: "plus.circle.fill")
+                    }
+                }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        showingProfileSheet = true
+                    } label: {
+                        Label("Profile", systemImage: "person.crop.circle")
                     }
                 }
             }
             .sheet(isPresented: $showingCreateCollectiveSheet) {
                 CreateCollectiveView()
                     .environmentObject(collectiveViewModel)
+            }
+            .sheet(isPresented: $showingProfileSheet) {
+                UserProfileView(viewModel: userProfileViewModel, authViewModel: authViewModel)
+            }
+            .onAppear {
+                userProfileViewModel.fetchUserProfile()
             }
         }
         .environmentObject(collectiveViewModel)

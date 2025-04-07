@@ -2,82 +2,69 @@ import SwiftUI
 import FirebaseFirestore // For Timestamp
 
 struct UserProfileView: View {
-    // Use @StateObject to create and manage the ViewModel instance
-    @StateObject private var viewModel = UserProfileViewModel()
+    // Use @ObservedObject as the ViewModel instance is passed from the parent
+    @ObservedObject var viewModel: UserProfileViewModel
+    @ObservedObject var authViewModel: AuthenticationViewModel // Pass AuthViewModel for logout
     
-    // State for edit mode, if we want an explicit edit button
-    // @State private var isEditing = false 
-    // For simplicity, we'll make fields directly editable for now.
+    // Local state for potentially edited values if not binding directly
+    @State private var nameInput: String = ""
+    @State private var bioInput: String = ""
+    @State private var skillsInput: String = "" // Comma-separated skills
+    @State private var portfolioUrlInput: String = ""
+    
+    @Environment(\.dismiss) var dismiss // To close the sheet
 
     var body: some View {
-        NavigationView {
+        NavigationView { // Embed in NavigationView for title and buttons
             Form {
                 if viewModel.isLoading {
-                    ProgressView()
+                    ProgressView("Loading Profile...")
                         .frame(maxWidth: .infinity, alignment: .center)
                 } else if let user = viewModel.user {
                     // Display Section (potentially non-editable fields)
-                    Section(header: Text("Account Info")) {
-                        Text("Email: \(user.email)") // Usually non-editable
+                    Section("Account Info") {
+                        Text("Email: \(user.email)") // Non-editable
                         if let createdAt = user.createdAt {
                              Text("Member Since: \(createdAt.dateValue(), style: .date)")
                         }
                     }
                     
                     // Editable Profile Section
-                    Section(header: Text("Profile Details")) {
-                        // Use bindings to allow editing directly
-                        // Need to handle optionals carefully
-                        TextField("Name", text: Binding(
-                            get: { viewModel.user?.name ?? "" },
-                            set: { viewModel.user?.name = $0 }
-                        ))
+                    Section("Edit Profile") {
+                        TextField("Name", text: $nameInput)
                         
-                        // TextEditor for multi-line bio
+                        TextField("Portfolio URL (Optional)", text: $portfolioUrlInput)
+                            .keyboardType(.URL)
+                            .autocapitalization(.none)
+                        
                         VStack(alignment: .leading) {
-                             Text("Bio").font(.caption).foregroundColor(.gray)
-                             TextEditor(text: Binding(
-                                 get: { viewModel.user?.bio ?? "" },
-                                 set: { viewModel.user?.bio = $0 }
-                             ))
-                             .frame(height: 100)
-                             .border(Color.gray.opacity(0.2))
+                            Text("Bio")
+                            TextEditor(text: $bioInput)
+                                .frame(height: 100) // Give TextEditor some height
+                                .border(Color.gray.opacity(0.2)) // Optional border
                         }
                         
-                        TextField("Portfolio URL", text: Binding(
-                            get: { viewModel.user?.portfolioUrl ?? "" },
-                            set: { viewModel.user?.portfolioUrl = $0 }
-                        ))
-                        .keyboardType(.URL)
-                        .autocapitalization(.none)
+                        TextField("Skills (comma-separated)", text: $skillsInput)
+                            .autocapitalization(.none)
                         
-                        // Skills - Simplified as comma-separated string for now
-                         VStack(alignment: .leading) {
-                             Text("Skills (comma-separated)").font(.caption).foregroundColor(.gray)
-                             TextField("", text: Binding(
-                                 get: { viewModel.user?.skills?.joined(separator: ", ") ?? "" },
-                                 set: { viewModel.user?.skills = $0.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty } }
-                             ))
-                         }
-                         
-                         // Placeholder for Profile Image URL/Path
-                         TextField("Profile Image Path", text: Binding(
-                             get: { viewModel.user?.profileImage ?? "" },
-                             set: { viewModel.user?.profileImage = $0 }
-                         ))
-                         .disabled(true) // Display only for now
-                         .foregroundColor(.gray)
+                        // TODO: Add Profile Image Picker later
+                        Text("Profile Image Upload (Coming Soon)")
+                            .foregroundColor(.gray)
                     }
-
-                    // Save Button
+                    
+                    // Action Section
                     Section {
                         Button("Save Profile") {
-                            viewModel.saveUserProfile()
+                            saveProfile()
                         }
-                        .disabled(viewModel.isLoading) // Disable while loading/saving
+                        .disabled(viewModel.isLoading) // Disable if already saving
+                        
+                        Button("Log Out", role: .destructive) {
+                            logout()
+                        }
                     }
-
-                    // Error Message Display
+                    
+                     // Error Message Display
                     if let errorMessage = viewModel.errorMessage {
                         Section {
                             Text("Error: \(errorMessage)")
@@ -86,8 +73,8 @@ struct UserProfileView: View {
                     }
                     
                 } else {
-                    // Handle case where user is nil and not loading (e.g., initial state or error)
-                    Text("No user profile loaded.")
+                    // Handle case where user is nil and not loading
+                    Text("Could not load user profile.")
                     if let errorMessage = viewModel.errorMessage {
                          Text("Error: \(errorMessage)")
                              .foregroundColor(.red)
@@ -99,18 +86,79 @@ struct UserProfileView: View {
                 }
             }
             .navigationTitle("My Profile")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                 ToolbarItem(placement: .navigationBarLeading) {
+                     Button("Close") { dismiss() }
+                 }
+            }
             .onAppear {
-                // Fetch profile when view appears if needed (e.g., if not fetched in init)
-                // viewModel.fetchUserProfile() // Already called in ViewModel init
+                // Populate local state when view appears or user data changes
+                populateLocalStateFromViewModel()
+            }
+            .onChange(of: viewModel.user) { // Use iOS 17+ onChange
+                 populateLocalStateFromViewModel()
             }
         }
+    }
+    
+    // Helper to populate local state from ViewModel's user
+    private func populateLocalStateFromViewModel() {
+        if let user = viewModel.user {
+            nameInput = user.name
+            bioInput = user.bio ?? ""
+            skillsInput = user.skills?.joined(separator: ", ") ?? ""
+            portfolioUrlInput = user.portfolioUrl ?? ""
+        }
+    }
+    
+    // Action to save profile
+    private func saveProfile() {
+        guard var updatedUser = viewModel.user else { return } // Get current user data
+        
+        // Update the user object with local state
+        updatedUser.name = nameInput
+        updatedUser.bio = bioInput.isEmpty ? nil : bioInput
+        updatedUser.portfolioUrl = portfolioUrlInput.isEmpty ? nil : portfolioUrlInput
+        // Split skills string into array, trimming whitespace
+        updatedUser.skills = skillsInput.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+        
+        // Update the ViewModel's user object BEFORE saving
+        viewModel.user = updatedUser 
+        
+        // Call ViewModel save function
+        viewModel.saveUserProfile()
+        
+        // Optionally dismiss after save, or wait for VM confirmation
+        // Consider adding feedback to the user (e.g., alert, loading state)
+    }
+    
+    // Action to log out
+    private func logout() {
+        authViewModel.signOut()
+        // Dismiss the profile sheet after logging out
+        dismiss()
     }
 }
 
 // MARK: - Preview
 struct UserProfileView_Previews: PreviewProvider {
     static var previews: some View {
-        UserProfileView()
-            // Inject mock data or a specific state for preview if needed
+        // Create mock ViewModels for preview
+        let mockProfileVM = UserProfileViewModel()
+        let mockAuthVM = AuthenticationViewModel()
+        
+        // Populate mockProfileVM with sample data if needed
+        mockProfileVM.user = User(
+            uid: "preview_user_123",
+            name: "Preview User",
+            email: "preview@example.com",
+            bio: "This is a bio for the preview.",
+            skills: ["SwiftUI", "Firebase", "Testing"],
+            portfolioUrl: "https://example.com",
+            createdAt: Timestamp(date: Date()))
+            
+        // Return the view here
+        return UserProfileView(viewModel: mockProfileVM, authViewModel: mockAuthVM)
     }
 } 
