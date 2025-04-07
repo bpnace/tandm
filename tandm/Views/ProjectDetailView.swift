@@ -15,6 +15,10 @@ struct ProjectDetailView: View {
     @State private var taskToAssign: TaskModel? = nil
     @State private var assignedUserIdInput: String = ""
     
+    // State for presenting Edit Task sheet
+    @State private var showingEditTaskSheet = false
+    @State private var taskToEdit: TaskModel? = nil
+    
     // Initialize the ViewModel with the project's ID
     init(project: Project) {
         self.project = project
@@ -54,6 +58,11 @@ struct ProjectDetailView: View {
                 } else {
                     ForEach(taskViewModel.tasks) { task in
                         TaskRowView(task: task, taskViewModel: taskViewModel, taskToAssign: $taskToAssign, assignedUserIdInput: $assignedUserIdInput, showingAssignAlert: $showingAssignAlert)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                taskToEdit = task
+                                showingEditTaskSheet = true
+                            }
                     }
                 }
             }
@@ -74,6 +83,10 @@ struct ProjectDetailView: View {
              // Present the actual CreateTaskView, passing the viewModel
              CreateTaskView(taskViewModel: taskViewModel)
             // Text("Create Task View Placeholder") // Placeholder removed
+        }
+        // Add sheet for editing task
+        .sheet(item: $taskToEdit) { task in // Use .sheet(item: ...) for optional state
+            EditTaskView(task: task, taskViewModel: taskViewModel)
         }
         // Add alert for assigning task
         .alert("Assign Task", isPresented: $showingAssignAlert, presenting: taskToAssign) { task in
@@ -112,26 +125,49 @@ private struct TaskRowView: View {
     @Binding var assignedUserIdInput: String
     @Binding var showingAssignAlert: Bool
 
+    // Helper to determine color based on status
+    private var statusColor: Color {
+        switch task.status {
+        case .todo:
+            return .gray
+        case .inProgress:
+            return .blue
+        case .blocked:
+            return .orange
+        case .done:
+            return .green
+        }
+    }
+
     var body: some View {
-        VStack(alignment: .leading) {
-            Text(task.title)
-                .font(.headline)
-            Text("Status: \(task.status.rawValue.capitalized)") // Capitalize status
-                .font(.subheadline)
-                .foregroundColor(.gray)
-            // Display Assigned User
-            if let assignedTo = task.assignedTo, !assignedTo.isEmpty {
-                Text("Assigned: \(assignedTo)") // Simple display for now
-                    .font(.caption)
-                    .foregroundColor(.blue)
-            } else {
-                Text("Unassigned")
-                    .font(.caption)
-                    .foregroundColor(.orange)
-            }
-            if let dueDate = task.dueDate {
-                Text("Due: \(dueDate.dateValue().formatted(date: .abbreviated, time: .omitted))") // Explicit formatting
-                    .font(.caption)
+        HStack(spacing: 8) { // Add HStack to hold bar and content
+            // Vertical status indicator bar
+            Rectangle()
+                .fill(statusColor)
+                .frame(width: 4)
+                .cornerRadius(2) // Optional: slightly round the corners
+            
+            // Existing content
+            VStack(alignment: .leading) {
+                Text(task.title)
+                    .font(.headline)
+                Text("Status: \(task.status.rawValue.capitalized)") // Capitalize status
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                // Display Assigned User
+                if let assignedTo = task.assignedTo, !assignedTo.isEmpty {
+                    Text("Assigned: \(assignedTo)") // Simple display for now
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                } else {
+                    Text("Unassigned")
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                }
+                if let dueDate = task.dueDate {
+                    Text("Due: \(dueDate.dateValue().formatted(date: .abbreviated, time: .omitted))") // Explicit formatting
+                        .font(.caption)
+                }
             }
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -158,7 +194,7 @@ private struct TaskRowView: View {
             }
             .tint(.blue) // Or choose a color based on the next status
         }
-        // Add Context Menu for Assignment
+        // Context menu should remain here
         .contextMenu {
             Button {
                 Task {

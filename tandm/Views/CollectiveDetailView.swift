@@ -5,6 +5,11 @@ struct CollectiveDetailView: View {
     @EnvironmentObject var collectiveViewModel: CollectiveViewModel // For invites
     @StateObject private var projectViewModel = ProjectViewModel()  // For projects
     
+    // State for Member Details
+    @State private var memberDetails: [String: User] = [:]
+    @State private var isLoadingMembers = false
+    private let userService = UserService() // Instance of UserService
+    
     @State private var showingInviteSheet = false
     @State private var showingCreateProjectSheet = false
 
@@ -26,9 +31,17 @@ struct CollectiveDetailView: View {
             // Section for Members
             Section("Members") {
                 // Keep member list simple for now
-                ForEach(collective.members, id: \.self) { memberUID in
-                    Text(memberUID) // Replace with fetched user names later
-                        .font(.subheadline)
+                if isLoadingMembers {
+                    ProgressView()
+                } else if collective.members.isEmpty {
+                    Text("No members added yet.")
+                        .foregroundColor(.secondary)
+                } else {
+                    ForEach(collective.members, id: \.self) { memberUID in
+                        // Display fetched username or UID as fallback
+                        Text(memberDetails[memberUID]?.name ?? memberUID)
+                            .font(.subheadline)
+                    }
                 }
             }
             
@@ -99,9 +112,37 @@ struct CollectiveDetailView: View {
              )
         }
         .onAppear {
-            Task { // Revert back to Task for async operation
+            // Fetch projects
+            Task {
                 await projectViewModel.fetchProjects(for: collective.id ?? "")
             }
+            // Fetch member details
+            fetchMemberDetails()
+        }
+    }
+    
+    // Function to fetch member details
+    private func fetchMemberDetails() {
+        guard !collective.members.isEmpty else { return }
+        isLoadingMembers = true
+        Task {
+            do {
+                let users = try await userService.fetchMultipleUsers(uids: collective.members)
+                // Convert array of users to dictionary [UID: User]
+                var detailsDict: [String: User] = [:]
+                for user in users {
+                    if let uid = user.uid { // Use the uid field from the User model
+                         detailsDict[uid] = user
+                    } else if let id = user.id { // Fallback to document ID if uid field is missing
+                         detailsDict[id] = user
+                    }
+                }
+                self.memberDetails = detailsDict
+            } catch {
+                print("Error fetching member details: \(error)")
+                // Handle error display if needed
+            }
+            isLoadingMembers = false
         }
     }
 }

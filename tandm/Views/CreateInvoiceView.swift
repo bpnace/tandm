@@ -88,7 +88,7 @@ struct CreateInvoiceView: View {
         .onAppear {
             // Add the initial line item here, now that authViewModel is available
             if lineItems.isEmpty {
-                 addLineItem() 
+                 //addLineItem() // Commented out for preview stability
             }
         }
     }
