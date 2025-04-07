@@ -21,6 +21,29 @@ struct UserProfileView: View {
                     ProgressView("Loading Profile...")
                         .frame(maxWidth: .infinity, alignment: .center)
                 } else if let user = viewModel.user {
+                    // --- Profile Image Placeholder Section ---
+                    Section("Profile Picture") {
+                        HStack {
+                            Spacer()
+                            // Static Placeholder Icon
+                            Image(systemName: "person.crop.circle.fill")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 100, height: 100)
+                                .foregroundColor(.gray)
+                            Spacer()
+                        }
+                        // Comment out or remove the picker button area
+                        /*
+                        HStack {
+                           Spacer()
+                           PhotosPicker(...) { ... }
+                           Spacer()
+                        }
+                        */
+                    }
+                    // --- End Profile Image Placeholder Section ---
+                    
                     // Display Section (potentially non-editable fields)
                     Section("Account Info") {
                         Text("Email: \(user.email)") // Non-editable

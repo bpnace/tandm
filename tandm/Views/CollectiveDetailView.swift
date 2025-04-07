@@ -4,6 +4,7 @@ struct CollectiveDetailView: View {
     let collective: Collective
     @EnvironmentObject var collectiveViewModel: CollectiveViewModel // For invites
     @StateObject private var projectViewModel = ProjectViewModel()  // For projects
+    @StateObject private var invoiceViewModel: InvoiceViewModel
     
     // State for Member Details
     @State private var memberDetails: [String: User] = [:]
@@ -12,7 +13,19 @@ struct CollectiveDetailView: View {
     
     @State private var showingInviteSheet = false
     @State private var showingCreateProjectSheet = false
+    @State private var showingCreateInvoiceSheet = false
 
+    // Initializer to inject collectiveId into InvoiceViewModel
+    init(collective: Collective) {
+        self.collective = collective
+        // Ensure we have a valid collective ID before initializing the viewModel
+        guard let collectiveId = collective.id else {
+            // Handle the error case appropriately
+            fatalError("CollectiveDetailView initialized without a collective ID.")
+        }
+        _invoiceViewModel = StateObject(wrappedValue: InvoiceViewModel(collectiveId: collectiveId))
+    }
+    
     var body: some View {
         List { // Use List for sections
             // Section for Collective Info
@@ -78,6 +91,32 @@ struct CollectiveDetailView: View {
                     }
                 }
             }
+            
+            // Section for Invoices
+            Section("Invoices") {
+                 if invoiceViewModel.isLoading {
+                     ProgressView()
+                 } else if let errorMessage = invoiceViewModel.errorMessage {
+                     Text("Error: \(errorMessage)")
+                         .foregroundColor(.red)
+                 } else if invoiceViewModel.invoices.isEmpty {
+                     Text("No invoices yet.")
+                         .foregroundColor(.secondary)
+                 } else {
+                     ForEach(invoiceViewModel.invoices) { invoice in
+                         // Basic Invoice Row - Enhance later
+                         VStack(alignment: .leading) {
+                             Text("Invoice for Project: \(invoice.projectId)") // Show project ID for now
+                             Text("Total: \(invoice.total, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))")
+                             Text("Status: \(invoice.status.rawValue)")
+                                 .font(.caption)
+                                 .foregroundColor(.gray)
+                             Text("Due: \(invoice.dueDate.dateValue(), style: .date)")
+                                 .font(.caption)
+                         }
+                     }
+                 }
+             }
         }
         .navigationTitle(collective.name)
         .navigationBarTitleDisplayMode(.inline)
@@ -98,6 +137,14 @@ struct CollectiveDetailView: View {
                     Label("Invite Member", systemImage: "person.crop.circle.badge.plus")
                 }
                 .disabled(collective.id == nil)
+                
+                // Create Invoice Button
+                Button {
+                    showingCreateInvoiceSheet = true
+                } label: {
+                    Label("New Invoice", systemImage: "doc.text.fill")
+                }
+                .disabled(collective.id == nil)
             }
         }
         .sheet(isPresented: $showingInviteSheet) {
@@ -110,6 +157,11 @@ struct CollectiveDetailView: View {
                 collectiveId: collective.id ?? "", // Pass the collective ID
                 projectViewModel: projectViewModel // Pass the view model instance
              )
+        }
+        .sheet(isPresented: $showingCreateInvoiceSheet) {
+            // CreateInvoiceView needs the InvoiceViewModel and likely AuthViewModel
+            // AuthViewModel should be available via environment
+            CreateInvoiceView(invoiceViewModel: invoiceViewModel)
         }
         .onAppear {
             // Fetch projects
