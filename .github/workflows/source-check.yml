@@ -1,0 +1,22 @@
+name: Source Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  source-check:
+    name: Swift source inventory
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify Swift sources exist
+        run: test -n "$(find tandm -name '*.swift' -print -quit)"
+
+      - name: Verify Firebase plist is valid XML
+        run: plutil -lint tandm/GoogleService-Info.plist

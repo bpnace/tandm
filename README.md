@@ -1,9 +1,12 @@
 # tandm - iOS App
 
-![Swift](https://img.shields.io/badge/Swift-iOS-F05138?logo=swift&logoColor=white)
-![Firebase](https://img.shields.io/badge/Firebase-backend-FFCA28?logo=firebase&logoColor=111827)
-![Status](https://img.shields.io/badge/status-in_development-orange)
-![Contributors](https://img.shields.io/badge/contributors-welcome-2ea043)
+[![Source Check](https://github.com/bpnace/tandm/actions/workflows/source-check.yml/badge.svg?branch=main)](https://github.com/bpnace/tandm/actions/workflows/source-check.yml)
+![Version](https://img.shields.io/badge/version-MVP_build_log-2563EB?style=flat-square)
+![Swift](https://img.shields.io/badge/Swift-iOS-F05138?style=flat-square&logo=swift&logoColor=white)
+![SwiftUI](https://img.shields.io/badge/SwiftUI-native_UI-0ea5e9?style=flat-square&logo=swift&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-backend-FFCA28?style=flat-square&logo=firebase&logoColor=111827)
+![Status](https://img.shields.io/badge/status-in_development-F97316?style=flat-square)
+![Contributors](https://img.shields.io/badge/contributors-welcome-2ea043?style=flat-square)
 
 ## Overview
 
