@@ -6,6 +6,8 @@
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-native_UI-0ea5e9?style=flat-square&logo=swift&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase-backend-FFCA28?style=flat-square&logo=firebase&logoColor=111827)
 ![Status](https://img.shields.io/badge/status-in_development-F97316?style=flat-square)
+![Security](https://img.shields.io/badge/security-Dependabot_%2B_CodeQL-2ea043?style=flat-square)
+![License](https://img.shields.io/badge/license-proprietary_portfolio_review-6B7280?style=flat-square)
 ![Contributors](https://img.shields.io/badge/contributors-welcome-2ea043?style=flat-square)
 
 ![tandm product map](docs/assets/tandm-product-map.svg)
