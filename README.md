@@ -8,6 +8,8 @@
 ![Status](https://img.shields.io/badge/status-in_development-F97316?style=flat-square)
 ![Contributors](https://img.shields.io/badge/contributors-welcome-2ea043?style=flat-square)
 
+![tandm product map](docs/assets/tandm-product-map.svg)
+
 ## Overview
 
 tandm is an in-development native iOS project for freelancers and small
@@ -17,6 +19,29 @@ projects, tasks, and invoices from one SwiftUI/Firebase workspace.
 This repository is public as a contributor-friendly build log. The core product
 areas are visible, several MVP slices are implemented, and the remaining work is
 explicitly tracked below.
+
+## Case study
+
+### Problem
+Freelancers and small collectives often manage team structure, projects, tasks,
+and invoices across separate tools. tandm explores a native mobile workspace for
+that combined workflow.
+
+### Solution
+I built the public project around SwiftUI screens, Firebase-backed data services,
+and incremental MVP slices across authentication, profiles, collectives,
+projects, task management, and invoices.
+
+### Engineering decisions
+- Use SwiftUI for the native product surface
+- Keep Firebase Auth and Firestore service boundaries explicit
+- Track roadmap slices directly in the README for contributor clarity
+- Mark the repo as in development instead of pretending it is production-ready
+- Call out the remaining build-manifest gap before broad contributor onboarding
+
+### Outcome
+tandm is positioned as a contributor-friendly Swift/Firebase build log with a
+clear product map, visible MVP progress, and honest next steps.
 
 ## What this shows
 
@@ -63,8 +88,10 @@ explicitly tracked below.
     *   Create a Firebase project.
     *   Add an iOS app configuration.
     *   Download the `GoogleService-Info.plist` file and place it in the appropriate location within the Xcode project structure (e.g., `/tandm/`).
-4.  Open the `.xcodeproj` or `.xcworkspace` file in Xcode.
-5.  Build and run the project on a simulator or device.
+4.  Add or restore the Xcode project/workspace or Swift package manifest before
+    expecting a clean external build from this public tree.
+5.  Build and run the project on a simulator or device once the Xcode entrypoint
+    is present.
 
 ## Development Roadmap (MVP)
 
