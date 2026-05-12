@@ -1,8 +1,26 @@
 # tandm - iOS App
 
+![Swift](https://img.shields.io/badge/Swift-iOS-F05138?logo=swift&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-backend-FFCA28?logo=firebase&logoColor=111827)
+![Status](https://img.shields.io/badge/status-in_development-orange)
+![Contributors](https://img.shields.io/badge/contributors-welcome-2ea043)
+
 ## Overview
 
-This is the native iOS application for tandm, allowing freelancers to manage collectives, projects, tasks, and invoices. It utilizes Firebase for backend services.
+tandm is an in-development native iOS project for freelancers and small
+collectives. The app explores how independent teams can manage collectives,
+projects, tasks, and invoices from one SwiftUI/Firebase workspace.
+
+This repository is public as a contributor-friendly build log. The core product
+areas are visible, several MVP slices are implemented, and the remaining work is
+explicitly tracked below.
+
+## What this shows
+
+- Native SwiftUI product architecture for a multi-entity productivity app
+- Firebase Auth, Firestore services, and cloud-backed user data
+- Incremental MVP delivery across profiles, collectives, projects, tasks, and invoices
+- A contributor-friendly roadmap with clear next polish and testing work
 
 ## Tech Stack
 
@@ -26,9 +44,15 @@ This is the native iOS application for tandm, allowing freelancers to manage col
 -   [ ] Invoice Creation & Management (Drafts)
 -   [ ] Basic PDF Invoice Generation Trigger
 
-## Setup Instructions
+## Contribution Areas
 
-*(Placeholder - To be filled in once basic setup is complete)*
+- Polish SwiftUI screens and empty states
+- Improve Firebase service boundaries and error handling
+- Add test coverage around view models and data services
+- Expand invoice export and PDF generation
+- Improve onboarding and contributor setup notes
+
+## Setup Instructions
 
 1.  Clone the repository.
 2.  Ensure you have Xcode installed.
@@ -93,4 +117,4 @@ This is the native iOS application for tandm, allowing freelancers to manage col
 
 ---
 
-*This README will be updated as development progresses.* 
+*This README will be updated as development progresses.*
