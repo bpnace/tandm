@@ -21,5 +21,5 @@ jobs:
       - name: Verify Swift sources exist
         run: test -n "$(find tandm -name '*.swift' -print -quit)"
 
-      - name: Verify Firebase plist is valid XML
-        run: plutil -lint tandm/GoogleService-Info.plist
+      - name: Verify Firebase example plist is valid XML
+        run: plutil -lint tandm/GoogleService-Info.example.plist

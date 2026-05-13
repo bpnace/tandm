@@ -89,7 +89,8 @@ clear product map, visible MVP progress, and honest next steps.
 3.  Configure Firebase:
     *   Create a Firebase project.
     *   Add an iOS app configuration.
-    *   Download the `GoogleService-Info.plist` file and place it in the appropriate location within the Xcode project structure (e.g., `/tandm/`).
+    *   Copy `tandm/GoogleService-Info.example.plist` to `tandm/GoogleService-Info.plist`.
+    *   Replace the placeholders with your local Firebase iOS app configuration. The real plist is intentionally ignored and must not be committed.
 4.  Add or restore the Xcode project/workspace or Swift package manifest before
     expecting a clean external build from this public tree.
 5.  Build and run the project on a simulator or device once the Xcode entrypoint
